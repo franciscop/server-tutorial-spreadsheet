@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="https://unpkg.com/picnic@6/picnic.min.css">
+  <style>
+    main {
+      width: 90%;
+      max-width: 800px;
+      margin: 30px auto;
+    }
+    table, canvas {
+      width: 100%;
+    }
+    h2 {
+      padding-bottom: 20px;
+    }
+    .card {
+      margin: 0;
+    }
+    #map {
+      height: 400px;
+    }
+    img {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+  <main>
+    <h1>Users</h1>
+
+
+    <h2>Demographics by location:</h2>
+    <img src="demographics.png">
+    <p>Note: now this is a image from the working code; see the source and uncomment the correct parts with your API key to use it</p>
+    <!-- <div id="map"></div> -->
+
+    <h2>Demographics by age:</h2>
+    <canvas id="people" width="800" height="300"></canvas>
+
+    <h2>Cards:</h2>
+    <div class="flex one three-900">
+      {{#each users}}
+        <div>
+          <div class="card">
+            <img src="http://lorempixel.com/400/200/?{{this.id}}">
+            <footer>{{this.firstname}} {{this.lastname}}, {{this.age}}</footer>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+
+    <h2>Table:</h2>
+    <table>
+      <tr>
+        <th>Firstname</th> <th>Lastname</th> <th>Age</th> <th>City</th>
+      </tr>
+      {{#each users}}
+        <tr>
+          <td>{{this.firstname}}</td>
+          <td>{{this.lastname}}</td>
+          <td>{{this.age}}</td>
+          <td>{{this.city}}</td>
+        </tr>
+      {{/each}}
+    </table>
+
+    <h2>Simple list:</h2>
+    <ul class="flex one three-800">
+      {{#each users}}
+        <li>{{this.firstname}} {{this.lastname}}</li>
+      {{/each}}
+    </ul>
+  </main>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+  <script>
+    var users = [
+      {{#each users}} {
+        id: {{{this.id}}},
+        firstname: "{{this.firstname}}",
+        lastname: "{{this.lastname}}",
+        age: {{this.age}},
+        city: "{{this.city}}",
+      }, {{/each}}
+    ];
+
+    var ctx = document.getElementById("people").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["0-19", "20-39", "40-59", "60+"],
+            datasets: [{
+                data: [
+                  users.filter(function(u){ return u.age < 20 }).length,
+                  users.filter(function(u){ return u.age >= 20 && u.age < 40 }).length,
+                  users.filter(function(u){ return u.age >= 40 && u.age < 60 }).length,
+                  users.filter(function(u){ return u.age >= 60 }).length
+                ],
+                backgroundColor: [
+                  'rgba(255, 99, 132, 0.5)',
+                  'rgba(54, 162, 235, 0.5)',
+                  'rgba(255, 206, 86, 0.5)',
+                  'rgba(75, 192, 192, 0.5)',
+                ]
+            }]
+        },
+        options: {
+            legend: { display: false },
+            scales: { yAxes: [{ ticks: { beginAtZero: true } }] }
+        }
+    });
+
+
+    function initMap() {
+      var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 4,
+        center: { lat: 39, lng: -100 }
+      });
+
+      var geocoder = new google.maps.Geocoder();
+      users.forEach(function(user) {
+        var newAddress;
+        geocoder.geocode({ address: user.city + ', United States' }, function(res){
+          var marker = new google.maps.Marker({
+            position: res[0].geometry.location,
+            map: map,
+            title: user.firstname
+          });
+        });
+      });
+    }
+  </script>
+  <!-- Note: put your API key here -->
+  <!-- <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=places&key=YOUR_API_KEY&callback=initMap"></script> -->
+</body>
+</html>
