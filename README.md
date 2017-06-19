@@ -6,7 +6,7 @@ Code for the tutorial of spreadsheets. See the instructions here:
 
 To try it:
 
-```js
+```bash
 git clone https://github.com/franciscop/server-tutorial-spreadsheet.git
 cd server-tutorial-spreadsheet
 npm install
